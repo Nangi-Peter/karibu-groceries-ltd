@@ -1,0 +1,293 @@
+/* ========================================
+   KARIBU GROCERIES LTD - UNIVERSAL STYLES
+   Author: Your Name
+   Date: 2024
+   Description: Core styles shared across both login and dashboard pages
+   ======================================== */
+
+/* ========================================
+   CSS CUSTOM PROPERTIES (VARIABLES)
+   Centralized color scheme and design tokens
+   Easy to modify entire app theme from one place
+   ======================================== */
+:root {
+    /* BRAND COLORS - Company's visual identity */
+    --primary-green: #2E7D32;      /* Main brand color - used for primary actions */
+    --secondary-green: #4CAF50;     /* Secondary brand color - hover states, accents */
+    --accent-gold: #FFC107;         /* Warning/alert color - low stock indicators */
+    --dark-brown: #5D4037;          /* Text color for headings - warm, earthy tone */
+    --light-beige: #F5F5DC;          /* Background alternative - subtle texture */
+    
+    /* STATUS COLORS - For user feedback */
+    --danger-red: #DC3545;           /* Error states, out of stock, delete actions */
+    --info-blue: #17A2B8;             /* Information messages, help text */
+    
+    /* GRAYSCALE - Neutral colors for hierarchy */
+    --gray-light: #f8f9fa;            /* Light backgrounds, table headers */
+    --gray-medium: #6c757d;            /* Secondary text, placeholder text */
+    --gray-dark: #343a40;               /* Body text, primary content */
+    
+    /* BASE COLORS */
+    --white: #ffffff;
+    --black: #000000;
+    
+    /* SHADOWS - Depth and elevation */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);    /* Subtle shadow for cards */
+    --shadow-md: 0 5px 15px rgba(0,0,0,0.1);   /* Medium shadow for hover states */
+    --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);  /* Large shadow for modals */
+    
+    /* BORDER RADIUS - Consistent rounding */
+    --border-radius-sm: 5px;    /* Small elements like badges */
+    --border-radius-md: 10px;    /* Medium elements like cards */
+    --border-radius-lg: 15px;     /* Large elements like modals */
+    
+    /* TRANSITIONS - Smooth animations */
+    --transition: all 0.3s ease;  /* Consistent timing for all interactions */
+}
+
+/* ========================================
+   RESET & BASE STYLES
+   Remove browser defaults for consistency
+   ======================================== */
+
+/* Universal selector - removes default margins and padding */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;  /* Includes padding in width calculations */
+}
+
+/* Body defaults - applied to all pages */
+body {
+    font-family: 'Poppins', sans-serif;  /* Modern, clean font from Google Fonts */
+    font-size: 16px;                       /* Base font size for rem calculations */
+    line-height: 1.6;                        /* Comfortable reading line height */
+    color: var(--gray-dark);                   /* Default text color */
+    min-height: 100vh;                          /* Ensures footer stays at bottom */
+}
+
+/* ========================================
+   LOADING SPINNER
+   Visual feedback during async operations
+   ======================================== */
+
+/* Spinner overlay - covers entire screen */
+.spinner-overlay {
+    position: fixed;      /* Stays in place during scroll */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);  /* Semi-transparent white */
+    display: none;        /* Hidden by default - shown via JavaScript */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;        /* Ensures it appears above all content */
+}
+
+/* Spinner animation element */
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;           /* Light gray background */
+    border-top: 5px solid var(--primary-green);  /* Green top for spinning effect */
+    border-radius: 50%;                    /* Makes it circular */
+    animation: spin 1s linear infinite;     /* Continuous rotation */
+}
+
+/* Spinner rotation keyframes */
+@keyframes spin {
+    0% { transform: rotate(0deg); }      /* Start position */
+    100% { transform: rotate(360deg); }   /* Full rotation */
+}
+
+/* ========================================
+   FORM ELEMENTS
+   Consistent styling for all form inputs
+   ======================================== */
+
+/* Base input styling */
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;        /* Comfortable padding */
+    font-size: 1rem;
+    border: 2px solid #e0e0e0;     /* Light gray border */
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition);   /* Smooth focus effect */
+}
+
+/* Focus state - visual feedback for keyboard navigation */
+.form-control:focus {
+    outline: none;                  /* Remove default browser outline */
+    border-color: var(--primary-green);  /* Green border on focus */
+    box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.25);  /* Glow effect */
+}
+
+/* Error state - for validation failures */
+.form-control.error {
+    border-color: var(--danger-red);  /* Red border indicates error */
+}
+
+/* Field error message - appears below invalid inputs */
+.field-error {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;      /* Smaller text for helper message */
+    color: var(--danger-red);  /* Red color matches error border */
+}
+
+/* ========================================
+   ALERT NOTIFICATIONS
+   Toast-style messages for user feedback
+   ======================================== */
+
+/* Base alert container */
+.alert {
+    padding: 1rem;
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 1rem;
+    position: fixed;        /* Fixed position - stays in view */
+    top: 20px;
+    right: 20px;
+    z-index: 9999;          /* Above all content */
+    max-width: 400px;        /* Prevents overly wide alerts */
+    box-shadow: var(--shadow-md);  /* Subtle depth */
+    animation: slideIn 0.3s ease;  /* Smooth entrance */
+}
+
+/* Slide in animation for alerts */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);  /* Start off-screen right */
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Success alert - green theme */
+.alert-success {
+    background: #d4edda;      /* Light green background */
+    color: #155724;            /* Dark green text */
+    border: 1px solid #c3e6cb; /* Green border */
+}
+
+/* Danger/Error alert - red theme */
+.alert-danger {
+    background: #f8d7da;      /* Light red background */
+    color: #721c24;            /* Dark red text */
+    border: 1px solid #f5c6cb; /* Red border */
+}
+
+/* Warning alert - yellow theme */
+.alert-warning {
+    background: #fff3cd;      /* Light yellow background */
+    color: #856404;            /* Dark yellow text */
+    border: 1px solid #ffeeba; /* Yellow border */
+}
+
+/* Close button for alerts */
+.alert .btn-close {
+    float: right;              /* Position on the right */
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    opacity: 0.5;
+    transition: var(--transition);
+}
+
+.alert .btn-close:hover {
+    opacity: 1;  /* Full opacity on hover */
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   Mobile-friendly modifications
+   ======================================== */
+
+/* Tablet and mobile screens */
+@media (max-width: 768px) {
+    /* Make alerts full width on mobile */
+    .alert {
+        left: 20px;           /* Stretch from left to right */
+        right: 20px;
+        max-width: none;       /* Remove max-width constraint */
+    }
+    
+    /* Slightly smaller form elements on mobile */
+    .form-control {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* ========================================
+   UTILITY CLASSES
+   Helper classes for common patterns
+   ======================================== */
+
+/* Text alignment utilities */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+/* Margin utilities */
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+.mt-5 { margin-top: 2.5rem; }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+.mb-5 { margin-bottom: 2.5rem; }
+
+/* Padding utilities */
+.p-1 { padding: 0.5rem; }
+.p-2 { padding: 1rem; }
+.p-3 { padding: 1.5rem; }
+.p-4 { padding: 2rem; }
+.p-5 { padding: 2.5rem; }
+
+/* Flexbox utilities */
+.d-flex { display: flex; }
+.flex-column { flex-direction: column; }
+.justify-content-center { justify-content: center; }
+.justify-content-between { justify-content: space-between; }
+.align-items-center { align-items: center; }
+
+/* Width utilities */
+.w-100 { width: 100%; }
+.w-75 { width: 75%; }
+.w-50 { width: 50%; }
+.w-25 { width: 25%; }
+
+/* ========================================
+   PRINT STYLES
+   For when users print the page
+   ======================================== */
+@media print {
+    /* Hide interactive elements when printing */
+    .alert,
+    .spinner-overlay,
+    .btn {
+        display: none !important;
+    }
+    
+    /* Ensure tables print properly */
+    .table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    .table th,
+    .table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+}

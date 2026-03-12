@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Karibu Groceries LTD - Dashboard</title>
+
+    <!-- Bootstrap 5 CSS - Provides responsive grid, tables, and components -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome - Icon library for all visual indicators -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Google Fonts - Poppins font for clean, professional typography -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css" />      <!-- Universal styles shared across all pages -->
+    <link rel="stylesheet" href="css/dashboard.css" />  <!-- Dashboard-specific styles -->
+  </head>
+  <body>
+    <!-- ========================================
+         MAIN DASHBOARD CONTAINER
+         Flex container that holds sidebar and main content
+         ======================================== -->
+    <div class="dashboard-container">
+      
+      <!-- ========================================
+           SIDEBAR - Fixed navigation panel
+           Contains brand, branch selector, and navigation links
+           ======================================== -->
+      <div class="sidebar" id="sidebar">
+        <!-- Brand Header -->
+        <div class="sidebar-header">
+          <i class="fas fa-store fa-3x"></i>           <!-- Store icon - brand identity -->
+          <h3>KGL Systems</h3>
+          <p>Branches: Maganjo • Matugga</p>           <!-- Shows both branches -->
+        </div>
+
+        <!-- ========================================
+             BRANCH SELECTOR - Only visible to Director
+             Allows switching between branches to view data
+             ======================================== -->
+        <div class="branch-selector">
+          <i class="fas fa-map-marker-alt"></i>         <!-- Location icon -->
+          <select id="branchSelect">
+            <option value="maganjo">Maganjo Branch</option>
+            <option value="matugga">Matugga Branch</option>
+          </select>
+        </div>
+
+        <!-- ========================================
+             NAVIGATION MENU - Main application sections
+             Each link has data-section attribute for JavaScript
+             ======================================== -->
+        <nav class="nav flex-column" id="mainNav">
+          <!-- Dashboard - Overview of all key metrics -->
+          <a class="nav-link active" href="#" data-section="dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+          <!-- Procurement - Record new produce purchases -->
+          <a class="nav-link" href="#" data-section="procurement">
+            <i class="fas fa-truck-loading"></i> Procurement
+          </a>
+          <!-- Sales - Record cash sales -->
+          <a class="nav-link" href="#" data-section="sales">
+            <i class="fas fa-shopping-cart"></i> Sales
+          </a>
+          <!-- Credit Sales - Record sales on credit -->
+          <a class="nav-link" href="#" data-section="credit">
+            <i class="fas fa-credit-card"></i> Credit Sales
+          </a>
+          <!-- Inventory - View current stock levels -->
+          <a class="nav-link" href="#" data-section="inventory">
+            <i class="fas fa-boxes"></i> Inventory
+          </a>
+          <!-- Reports - Only visible to Director (aggregated data) -->
+          <a class="nav-link" href="#" data-section="reports" id="reportsLink">
+            <i class="fas fa-chart-bar"></i> Reports (Director)
+          </a>
+        </nav>
+      </div>
+
+      <!-- ========================================
+           MAIN CONTENT AREA - Dynamic content loads here
+           ======================================== -->
+      <div class="main-content">
+        
+        <!-- ========================================
+             DASHBOARD HEADER - Top bar with title, user info, and logout
+             ======================================== -->
+        <div class="dashboard-header">
+          <div class="header-title">
+            <h2 id="pageTitle">Dashboard</h2>          <!-- Dynamic page title -->
+            <p id="dateTime"></p>                       <!-- Live date/time display -->
+          </div>
+          <div class="user-info">
+            <span id="currentUser">Loading...</span>    <!-- Shows logged-in user and role -->
+            <button class="logout-btn" id="logoutBtn">
+              <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </button>
+          </div>
+          <!-- Mobile menu toggle button (visible only on small screens) -->
+          <button class="mobile-menu-toggle" id="mobileMenuToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+
+        <!-- ========================================
+             DYNAMIC CONTENT AREA
+             Different sections are shown/hidden based on navigation
+             Each section has its own ID for JavaScript control
+             ======================================== -->
+        <div id="contentArea">
+          
+          <!-- ========================================
+               DASHBOARD SECTION (Default view)
+               Shows statistics, products, and recent transactions
+               ======================================== -->
+          <div id="dashboardSection">
+            <!-- Statistics Cards - Populated by JavaScript -->
+            <div class="stats-row" id="statsContainer"></div>
+
+            <!-- Available Produce Grid - Shows all products with images -->
+            <div class="section-card">
+              <h4 class="section-title">
+                <i class="fas fa-seedling me-2"></i>
+                Available Produce
+              </h4>
+              <div class="product-grid" id="productGrid"></div>  <!-- Product cards loaded here -->
+            </div>
+
+            <!-- Recent Transactions Table -->
+            <div class="section-card">
+              <h4 class="section-title">
+                <i class="fas fa-history me-2"></i>
+                Recent Transactions
+              </h4>
+              <div class="table-container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Produce</th>
+                      <th>Type</th>
+                      <th>Quantity</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentTransactions"></tbody>  <!-- Transaction data loaded here -->
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========================================
+               PROCUREMENT SECTION
+               Form for recording new produce purchases
+               ======================================== -->
+          <div id="procurementSection" style="display: none">
+            <!-- New Procurement Form -->
+            <div class="section-card">
+              <h4 class="section-title">
+                <i class="fas fa-plus-circle me-2"></i>
+                New Procurement
+              </h4>
+              <form id="procurementForm">
+                <div class="row">
+                  <!-- Produce Name - Alphanumeric, min 2 chars -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Produce Name *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="produceName"
+                      required
+                      pattern="[A-Za-z0-9 ]+"
+                      minlength="2"
+                    />
+                    <small class="text-muted">Alphanumeric, min 2 characters</small>
+                  </div>
+                  
+                  <!-- Type - Alphabets only, min 2 chars -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Type *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="produceType"
+                      required
+                      pattern="[A-Za-z ]+"
+                      minlength="2"
+                    />
+                    <small class="text-muted">Alphabets only, min 2 characters</small>
+                  </div>
+                  
+                  <!-- Date of procurement -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Date *</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="procurementDate"
+                      required
+                    />
+                  </div>
+                  
+                  <!-- Time of procurement (optional) -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Time</label>
+                    <input
+                      type="time"
+                      class="form-control"
+                      id="procurementTime"
+                    />
+                  </div>
+                  
+                  <!-- Tonnage - Minimum 1000kg (1 tonne) as per business rule -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Tonnage (kg) *</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="tonnage"
+                      required
+                      min="1000"
+                      step="1"
+                    />
+                    <small class="text-muted">Minimum 1000kg (1 tonne)</small>
+                  </div>
+                  
+                  <!-- Cost - Minimum 10,000 UGX as per business rule -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Cost (UGX) *</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="cost"
+                      required
+                      min="10000"
+                      step="100"
+                    />
+                    <small class="text-muted">Minimum 10,000 UGX</small>
+                  </div>
+                  
+                  <!-- Dealer Name - Who supplied the produce -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Dealer Name *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="dealerName"
+                      required
+                      pattern="[A-Za-z0-9 ]+"
+                      minlength="2"
+                    />
+                  </div>
+                  
+                  <!-- Contact - Valid phone number (10-12 digits) -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Contact *</label>
+                    <input
+                      type="tel"
+                      class="form-control"
+                      id="dealerContact"
+                      required
+                      pattern="[0-9]{10,12}"
+                    />
+                    <small class="text-muted">Valid phone number (10-12 digits)</small>
+                  </div>
+                  
+                  <!-- Selling Price - Price per kg -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Selling Price (per kg) *</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="sellingPrice"
+                      required
+                      min="1000"
+                      step="100"
+                    />
+                  </div>
+                  
+                  <!-- Submit Button -->
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-success">
+                      <i class="fas fa-save me-2"></i>Record Procurement
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Procurement History Table -->
+            <div class="section-card">
+              <h4 class="section-title">Recent Procurements</h4>
+              <div class="table-container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Produce</th>
+                      <th>Dealer</th>
+                      <th>Tonnage</th>
+                      <th>Cost</th>
+                      <th>Branch</th>
+                    </tr>
+                  </thead>
+                  <tbody id="procurementHistory"></tbody>  <!-- Procurement data loaded here -->
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========================================
+               SALES SECTION
+               Form for recording cash sales
+               ======================================== -->
+          <div id="salesSection" style="display: none">
+            <div class="section-card">
+              <h4 class="section-title">New Sale</h4>
+              <form id="salesForm">
+                <div class="row">
+                  <!-- Produce Selection - Dropdown of available products -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Produce *</label>
+                    <select class="form-control" id="saleProduce" required>
+                      <option value="">Select Produce</option>
+                      <option value="Beans">Beans</option>
+                      <option value="Grain Maize">Grain Maize</option>
+                      <option value="Cow peas">Cow peas</option>
+                      <option value="G-nuts">G-nuts</option>
+                      <option value="Soybeans">Soybeans</option>
+                    </select>
+                  </div>
+                  
+                  <!-- Tonnage - Quantity being sold -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Tonnage (kg) *</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="saleTonnage"
+                      required
+                      min="1"
+                    />
+                  </div>
+                  
+                  <!-- Amount Paid - Must be at least 10,000 UGX -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Amount Paid (UGX) *</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="amountPaid"
+                      required
+                      min="10000"
+                    />
+                  </div>
+                  
+                  <!-- Buyer Name - Who purchased the produce -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Buyer Name *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="buyerName"
+                      required
+                      pattern="[A-Za-z0-9 ]+"
+                      minlength="2"
+                    />
+                  </div>
+                  
+                  <!-- Sales Agent - Auto-filled with current user, readonly -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Sales Agent *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="agentName"
+                      required
+                      pattern="[A-Za-z0-9 ]+"
+                      minlength="2"
+                      readonly
+                    />
+                  </div>
+                  
+                  <!-- Submit Button -->
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-success">
+                      <i class="fas fa-cash-register me-2"></i>Record Sale
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- ========================================
+               CREDIT SALES SECTION
+               Form for recording sales on credit (trusted buyers only)
+               ======================================== -->
+          <div id="creditSection" style="display: none">
+            <div class="section-card">
+              <h4 class="section-title">Credit Sale</h4>
+              <form id="creditForm">
+                <div class="row">
+                  <!-- Buyer Information -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Buyer Name *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="creditBuyerName"
+                      required
+                      pattern="[A-Za-z0-9 ]+"
+                      minlength="2"
+                    />
+                  </div>
+                  
+                  <!-- National ID - Must follow Uganda NIN format (14 chars) -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">National ID (NIN) *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="nin"
+                      required
+                      pattern="[A-Z0-9]{14}"
+                    />
+                    <small class="text-muted">Format: CM123456789012</small>
+                  </div>
+                  
+                  <!-- Location - Where the buyer is from -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Location *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="location"
+                      required
+                      pattern="[A-Za-z0-9 ]+"
+                      minlength="2"
+                    />
+                  </div>
+                  
+                  <!-- Contact - Valid phone number -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Contact *</label>
+                    <input
+                      type="tel"
+                      class="form-control"
+                      id="creditContact"
+                      required
+                      pattern="[0-9]{10,12}"
+                    />
+                  </div>
+                  
+                  <!-- Credit Details -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Amount Due (UGX) *</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="amountDue"
+                      required
+                      min="10000"
+                    />
+                  </div>
+                  
+                  <!-- Due Date - When payment must be made -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Due Date *</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="dueDate"
+                      required
+                    />
+                  </div>
+                  
+                  <!-- Produce Information -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Produce Name *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="creditProduce"
+                      required
+                      pattern="[A-Za-z0-9 ]+"
+                      minlength="2"
+                    />
+                  </div>
+                  
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Produce Type *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="creditProduceType"
+                      required
+                      pattern="[A-Za-z ]+"
+                      minlength="2"
+                    />
+                  </div>
+                  
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Tonnage (kg) *</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="creditTonnage"
+                      required
+                      min="1"
+                    />
+                  </div>
+                  
+                  <!-- Sales Agent - Who processed the credit sale -->
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Sales Agent *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="creditAgent"
+                      required
+                      pattern="[A-Za-z0-9 ]+"
+                      minlength="2"
+                    />
+                  </div>
+                  
+                  <!-- Submit Button -->
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-warning">
+                      <i class="fas fa-credit-card me-2"></i>Process Credit Sale
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- ========================================
+               INVENTORY SECTION
+               Shows current stock levels with status indicators
+               ======================================== -->
+          <div id="inventorySection" style="display: none">
+            <div class="section-card">
+              <h4 class="section-title">Current Stock Levels</h4>
+              <div class="table-container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Produce</th>
+                      <th>Type</th>
+                      <th>Stock (kg)</th>
+                      <th>Price/kg</th>
+                      <th>Status</th>           <!-- In Stock / Low Stock / Out of Stock -->
+                      <th>Last Updated</th>
+                    </tr>
+                  </thead>
+                  <tbody id="inventoryTable"></tbody>  <!-- Inventory data loaded here -->
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========================================
+               REPORTS SECTION (DIRECTOR ONLY)
+               Aggregated data from both branches
+               ======================================== -->
+          <div id="reportsSection" style="display: none">
+            <div class="section-card">
+              <h4 class="section-title">
+                Director's Dashboard - Aggregated Reports
+              </h4>
+
+              <!-- Report Statistics Cards -->
+              <div class="stats-row" id="reportStats"></div>
+
+              <!-- Branch Performance Cards - Side by side comparison -->
+              <div class="row mt-4" id="branchPerformance"></div>
+
+              <!-- Summary Table - Branch comparison -->
+              <div class="table-container mt-4">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Metric</th>
+                      <th>Maganjo</th>
+                      <th>Matugga</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reportTable"></tbody>  <!-- Report data loaded here -->
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================
+         LOADING SPINNER
+         Shown during data operations for better UX
+         ======================================== -->
+    <div class="spinner-overlay" id="spinner">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>  <!-- Main JavaScript - All application logic -->
+  </body>
+</html>
